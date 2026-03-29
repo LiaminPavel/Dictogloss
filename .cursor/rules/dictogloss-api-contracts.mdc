@@ -1,0 +1,69 @@
+---
+description: Dictogloss — agreed API routes, response shape, and check order. Do not invent new paths without updating this rule.
+alwaysApply: true
+---
+
+# DICTOGLOSS — API CONTRACTS
+
+These are the agreed API routes. Do not create new routes without updating this document.
+
+## ADMIN API (require role === ADMIN on every route)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/api/admin/lessons` | create lesson + sentences |
+| GET | `/api/admin/lessons` | list teacher's lessons |
+| GET | `/api/admin/lessons/[id]` | lesson detail + sentences + audio status |
+| DELETE | `/api/admin/lessons/[id]` | soft delete |
+| POST | `/api/admin/lessons/[id]/generate` | trigger audio generation for all sentences |
+| GET | `/api/admin/lessons/[id]/stats` | attempt list + per-sentence accuracy |
+
+## STUDENT API (public, no auth required)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/lesson/[shareToken]` | lesson metadata ONLY (title, sentence count, voice) |
+| POST | `/api/lesson/[shareToken]/attempt` | create LessonAttempt, returns attemptId |
+| GET | `/api/lesson/[shareToken]/audio/[sentenceId]` | presigned URL (validates playCount < 3) |
+| POST | `/api/lesson/[shareToken]/answer` | submit answer; returns isCorrect + correctText if wrong |
+| PATCH | `/api/lesson/[shareToken]/attempt/[id]/complete` | mark attempt as completed |
+
+## AUTH API
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/api/auth/[...nextauth]` | NextAuth handler (login only, no public registration) |
+
+## SECURITY RULES PER ROUTE TYPE
+
+**Admin routes**
+
+1. `getServerSession()` — if no session → 401
+2. `session.user.role === 'ADMIN'` — if not → 403
+3. Zod validate body/query where applicable
+4. Execute logic
+
+**Student routes**
+
+1. Find lesson by `shareToken` — if not found → 404
+2. Zod validate body/query where applicable
+3. Rate limit check
+4. Execute logic
+5. NEVER return `Sentence.text` in `GET /api/lesson/[shareToken]`
+6. Only return `Sentence.text` in `POST .../answer` response when `isCorrect === false`
+
+## RESPONSE FORMAT (consistent across all routes)
+
+**Success**
+
+```json
+{ "data": { /* ... */ }, "error": null }
+```
+
+**Error**
+
+```json
+{ "data": null, "error": { "message": "string", "code": "string" } }
+```
+
+- Never expose stack traces or internal error details in `error.message`.

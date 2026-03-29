@@ -1,0 +1,78 @@
+---
+description: Dictogloss database schema reference — agents must use these models and enums; do not invent fields.
+alwaysApply: true
+---
+
+# DICTOGLOSS — DATABASE SCHEMA REFERENCE
+
+Agents must rely on this document before any database-related code. Do not invent field names or relations — only what is defined below.
+
+## MODELS
+
+### User
+
+- `id`: String `@id` `@default(cuid())`
+- `email`: String `@unique`
+- `password`: String (bcrypt, minimum 12 rounds)
+- `name`: String
+- `role`: `Role` (ADMIN | STUDENT)
+- `createdAt`, `updatedAt`, `deletedAt` (soft delete)
+- relations: `lessons[]`, `attempts[]`
+
+### Lesson
+
+- `id`: String `@id` `@default(cuid())`
+- `title`: String
+- `shareToken`: String `@unique` (public token in the URL)
+- `userId`: String (FK → User, teacher who created the lesson)
+- `voice`: String (OpenAI voices: alloy, echo, fable, onyx, nova, shimmer)
+- `accent`: String (`american` | `british` — display only)
+- `isActive`: Boolean `@default(true)`
+- `createdAt`, `updatedAt`, `deletedAt`
+- relations: `sentences[]`, `attempts[]`
+
+### Sentence
+
+- `id`: String `@id` `@default(cuid())`
+- `lessonId`: String (FK → Lesson)
+- `order`: Int (starts at 1, playback order)
+- `text`: String (correct answer — **never** send to the client until the answer is checked)
+- `audioUrl`: String? (URL in DO Spaces after generation)
+- `audioStatus`: `AudioStatus` (PENDING | PROCESSING | READY | FAILED)
+- `createdAt`, `updatedAt`
+- relations: `answers[]`
+
+### LessonAttempt
+
+- `id`: String `@id` `@default(cuid())`
+- `lessonId`: String (FK → Lesson)
+- `userId`: String? (null for anonymous students)
+- `studentName`: String (entered before start)
+- `startedAt`: DateTime `@default(now())`
+- `completedAt`: DateTime?
+- `totalScore`: Int? (number of correct answers)
+- `totalCount`: Int? (number of sentences)
+- relations: `answers[]`
+
+### StudentAnswer
+
+- `id`: String `@id` `@default(cuid())`
+- `attemptId`: String (FK → LessonAttempt)
+- `sentenceId`: String (FK → Sentence)
+- `studentText`: String (student input)
+- `isCorrect`: Boolean
+- `playCount`: Int `@default(0)` (maximum 3)
+- `answeredAt`: DateTime `@default(now())`
+
+## ENUMS
+
+- `Role`: ADMIN | STUDENT
+- `AudioStatus`: PENDING | PROCESSING | READY | FAILED
+
+## CRITICAL RULES
+
+- Do not return `Sentence.text` to the client until the answer is submitted and checked.
+- Enforce `playCount` limit of 3 on the server, not only in the UI.
+- Answer check: `studentText.trim() === sentence.text.trim()` — exact match; case and punctuation matter.
+- Soft delete: always use `deletedAt`; do not hard-delete entities that use soft delete.
+- Public lesson identifier is only `shareToken`; do not use `lesson.id` in student-facing URLs.

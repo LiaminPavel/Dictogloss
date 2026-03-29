@@ -1,0 +1,90 @@
+// Dictogloss database schema — source of truth matches project database reference.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(STUDENT)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  lessons   Lesson[]
+  attempts  LessonAttempt[]
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+model Lesson {
+  id         String    @id @default(cuid())
+  title      String
+  shareToken String    @unique @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  voice      String
+  accent     String
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  sentences  Sentence[]
+  attempts   LessonAttempt[]
+}
+
+model Sentence {
+  id          String       @id @default(cuid())
+  lessonId    String
+  lesson      Lesson       @relation(fields: [lessonId], references: [id])
+  order       Int
+  text        String
+  audioUrl    String?
+  audioStatus AudioStatus  @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  answers     StudentAnswer[]
+}
+
+enum AudioStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model LessonAttempt {
+  id          String    @id @default(cuid())
+  lessonId    String
+  lesson      Lesson    @relation(fields: [lessonId], references: [id])
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  studentName String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  totalScore  Int?
+  totalCount  Int?
+  answers     StudentAnswer[]
+}
+
+model StudentAnswer {
+  id          String        @id @default(cuid())
+  attemptId   String
+  attempt     LessonAttempt @relation(fields: [attemptId], references: [id])
+  sentenceId  String
+  sentence    Sentence      @relation(fields: [sentenceId], references: [id])
+  studentText String
+  isCorrect   Boolean
+  playCount   Int           @default(0)
+  answeredAt  DateTime      @default(now())
+}
