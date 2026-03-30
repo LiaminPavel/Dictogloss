@@ -23,6 +23,7 @@
 ## Next
 
 - Complete Phase 1 verification against real deployment URLs and run credential flow tests (`success`, `wrong password`, `unknown user`, protected route redirects, API 401 without session).
+- Set `AUTH_TRUST_HOST=true` in DigitalOcean App Platform environment to mirror code-level `trustHost: true` and keep deployment config explicit.
 
 ## Known Issues
 

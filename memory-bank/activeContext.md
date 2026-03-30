@@ -31,6 +31,7 @@ Current focus, decisions, and notes for the agent.
 2. **Credentials strategy:** Implemented credentials auth with Prisma user lookup + bcrypt comparison, JWT session strategy, and role/id propagation via `jwt` and `session` callbacks.
 3. **Route protection:** Added `middleware.ts` matcher for `/admin/:path*` and `/api/admin/:path*`; page routes redirect to `/login`, API routes return `401` with project error envelope.
 4. **Login UX:** Added `/login` page and client form with Zod validation before `signIn("credentials")`, plus callback redirect handling back to protected route.
+5. **Production host trust:** Fixed Auth.js runtime `UntrustedHost` on DigitalOcean by enabling `trustHost: true` in `lib/auth/config.ts` (Context7 confirms parity with `AUTH_TRUST_HOST=true`).
 
 ## Open Items
 
