@@ -18,6 +18,7 @@
 - [x] `lib/db/prisma.ts` Prisma singleton for Next.js
 - [x] `prisma/seed.ts` admin user seed
 - [x] `npm run build` passes (verified in Phase 0.11)
+- [x] Cursor subagent `git-cleanup` added (`.cursor/agents/git-cleanup.md`)
 
 ## Next
 

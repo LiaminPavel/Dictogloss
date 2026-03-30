@@ -21,6 +21,10 @@ Current focus, decisions, and notes for the agent.
 - `.cursor/agents/pre-commit-check.md` and `language-auditor.md` metadata no longer embed Cyrillic trigger phrases (triggers described in English).
 - **`PROJECT_PLAN.md`** still contains extensive Russian copy from the original stakeholder brief; English product/technical specs live in **memory-bank** and **prisma/schema.prisma**. Full translation of `PROJECT_PLAN.md` was not required to unblock Phase 0 build.
 
+## Tooling
+
+- **`.cursor/agents/git-cleanup.md`:** Subagent for pre-commit/push hygiene (temp files, OS junk, console cleanup except logger, imports, suspicious literals). Complements `pre-commit-check`.
+
 ## Open Items
 
 - Run `npx prisma migrate dev` when a local PostgreSQL instance is available.
