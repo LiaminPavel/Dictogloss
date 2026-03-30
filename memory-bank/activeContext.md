@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 0 — Setup** completed. Next: **Phase 1 — Auth** (NextAuth v5, credentials, protected `/admin` and `/api/admin/*`).
+**Phase 1 — Auth** in progress (NextAuth v5 credentials, `/login`, middleware for `/admin` and `/api/admin/*`).
 
 ## Decisions Log (Phase 0)
 
@@ -24,6 +24,13 @@ Current focus, decisions, and notes for the agent.
 ## Tooling
 
 - **`.cursor/agents/git-cleanup.md`:** Subagent for pre-commit/push hygiene (temp files, OS junk, console cleanup except logger, imports, suspicious literals). Complements `pre-commit-check`.
+
+## Decisions Log (Phase 1)
+
+1. **Auth.js v5 wiring:** Added root `auth.ts` and route handler `app/api/auth/[...nextauth]/route.ts` to follow v5 centralized export pattern (`handlers`, `auth`, `signIn`, `signOut`).
+2. **Credentials strategy:** Implemented credentials auth with Prisma user lookup + bcrypt comparison, JWT session strategy, and role/id propagation via `jwt` and `session` callbacks.
+3. **Route protection:** Added `middleware.ts` matcher for `/admin/:path*` and `/api/admin/:path*`; page routes redirect to `/login`, API routes return `401` with project error envelope.
+4. **Login UX:** Added `/login` page and client form with Zod validation before `signIn("credentials")`, plus callback redirect handling back to protected route.
 
 ## Open Items
 

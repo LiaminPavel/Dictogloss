@@ -3,7 +3,7 @@
 ## Status
 
 **Phase 0 — Setup:** complete.  
-**Phase 1 — Auth:** not started.
+**Phase 1 — Auth:** in progress.
 
 ## Completed (Phase 0)
 
@@ -22,7 +22,7 @@
 
 ## Next
 
-- Phase 1: NextAuth configuration, middleware, `/login`, protect `/admin` and `/api/admin/*`
+- Complete Phase 1 verification against real deployment URLs and run credential flow tests (`success`, `wrong password`, `unknown user`, protected route redirects, API 401 without session).
 
 ## Known Issues
 
