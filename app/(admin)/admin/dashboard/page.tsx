@@ -79,6 +79,12 @@ export default async function AdminDashboardPage(): Promise<React.ReactElement> 
                       {failedCount > 0 ? ` • Failed: ${failedCount}` : ""}
                     </p>
                     <p className="break-all text-sm text-zinc-700">Share link: {shareLink}</p>
+                    <Link
+                      href={`/admin/lessons/${lesson.id}`}
+                      className="mt-2 inline-flex w-fit rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                    >
+                      Open lesson details
+                    </Link>
                   </div>
                 </article>
               );

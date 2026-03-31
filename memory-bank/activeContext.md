@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 2 — Admin Panel** in progress (lesson creation backend wired, audio generation flow, dashboard lessons list).
+**Phase 2 — Admin Panel** completed (lesson detail, failed-audio regeneration, soft delete).
 
 ## Decisions Log (Phase 0)
 
@@ -42,6 +42,9 @@ Current focus, decisions, and notes for the agent.
 5. **Audio generation strategy:** Added `POST /api/admin/lessons/[id]/generate` to process one pending sentence per call, generate TTS via OpenAI, upload MP3 to DO Spaces, and persist `audioStatus`.
 6. **Progress UX:** Lesson form now runs create + repeated generate calls and updates progress counters sentence-by-sentence until done, then shows a shareable lesson URL.
 7. **Dashboard data:** Admin dashboard now lists teacher lessons with sentence/attempt counts, audio-ready progress, failure count, and share links.
+8. **Lesson detail API/UI:** Added `GET /api/admin/lessons/[id]` and `/admin/lessons/[id]` page with sentence-level audio statuses and copyable share link.
+9. **Failed audio recovery:** Added sentence-specific regeneration endpoint `POST /api/admin/lessons/[id]/sentences/[sentenceId]/regenerate` for `FAILED` items.
+10. **Soft delete:** Added `DELETE /api/admin/lessons/[id]` that sets `deletedAt` and `isActive=false` instead of hard deletion.
 
 ## Open Items
 

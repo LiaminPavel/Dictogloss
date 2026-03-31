@@ -4,7 +4,8 @@
 
 **Phase 0 — Setup:** complete.  
 **Phase 1 — Auth:** complete in production.  
-**Phase 2 — Admin Panel:** in progress (backend core done).
+**Phase 2 — Admin Panel:** complete.  
+**Phase 3 — Student Interface:** next.
 
 ## Completed (Phase 0)
 
@@ -23,9 +24,8 @@
 
 ## Next
 
-- Add admin lesson detail page with per-sentence status and regenerate actions for failed audio.
-- Implement `GET /api/admin/lessons/[id]` and connect it to admin lesson detail UI.
-- Start Phase 3 student endpoints after Phase 2 detail/stat pages are complete.
+- Start Phase 3: `GET /api/lesson/[shareToken]`, attempt creation, answer submission, and audio playback endpoint with play-count enforcement.
+- Build student lesson entry page (`/lesson/[shareToken]`) and practice flow UI.
 
 ## Known Issues
 
