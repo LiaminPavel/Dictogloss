@@ -5,7 +5,8 @@
 **Phase 0 — Setup:** complete.  
 **Phase 1 — Auth:** complete in production.  
 **Phase 2 — Admin Panel:** complete.  
-**Phase 3 — Student Interface:** in progress.
+**Phase 3 — Student Interface:** complete (core flow).  
+**Phase 4 — Statistics:** in progress (local implementation ready).
 
 ## Completed (Phase 0)
 
@@ -24,8 +25,8 @@
 
 ## Next
 
-- Run end-to-end production checks for student flow (start attempt, play audio with 3-play cap, answer transitions, final score persistence).
-- Add richer results breakdown (per-sentence correctness list) if required for MVP polish.
+- Run local/manual UI verification of new stats page and dashboard KPI cards.
+- After confirmation, commit/push Phase 4 stats changes to `main`.
 
 ## Known Issues
 

@@ -36,6 +36,19 @@ export default async function AdminDashboardPage(): Promise<React.ReactElement> 
       })
     : [];
 
+  const totalLessons = lessons.length;
+  const totalAttempts = lessons.reduce((acc, lesson) => acc + lesson._count.attempts, 0);
+  const averageReadyRate =
+    lessons.length === 0
+      ? 0
+      : Math.round(
+          lessons.reduce((acc, lesson) => {
+            const readyCount = lesson.sentences.filter((sentence) => sentence.audioStatus === "READY").length;
+            const rate = lesson._count.sentences > 0 ? readyCount / lesson._count.sentences : 0;
+            return acc + rate;
+          }, 0) / lessons.length * 100,
+        );
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-12">
       <h1 className="text-3xl font-semibold text-zinc-900">Admin Dashboard</h1>
@@ -51,6 +64,21 @@ export default async function AdminDashboardPage(): Promise<React.ReactElement> 
       >
         Create a new lesson
       </Link>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-sm text-zinc-600">Total lessons</p>
+          <p className="mt-1 text-2xl font-semibold text-zinc-900">{totalLessons}</p>
+        </article>
+        <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-sm text-zinc-600">Total attempts</p>
+          <p className="mt-1 text-2xl font-semibold text-zinc-900">{totalAttempts}</p>
+        </article>
+        <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+          <p className="text-sm text-zinc-600">Average audio readiness</p>
+          <p className="mt-1 text-2xl font-semibold text-zinc-900">{averageReadyRate}%</p>
+        </article>
+      </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-semibold text-zinc-900">Your lessons</h2>
@@ -84,6 +112,12 @@ export default async function AdminDashboardPage(): Promise<React.ReactElement> 
                       className="mt-2 inline-flex w-fit rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
                     >
                       Open lesson details
+                    </Link>
+                    <Link
+                      href={`/admin/lessons/${lesson.id}/stats`}
+                      className="mt-2 inline-flex w-fit rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                    >
+                      View lesson stats
                     </Link>
                   </div>
                 </article>

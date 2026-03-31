@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 3 — Student Interface** in progress (student APIs and lesson/practice/results pages implemented).
+**Phase 4 — Statistics** in progress (lesson stats API and admin stats page implemented locally).
 
 ## Decisions Log (Phase 0)
 
@@ -53,6 +53,13 @@ Current focus, decisions, and notes for the agent.
 3. **Audio playback control:** Added `GET /api/lesson/[shareToken]/audio/[sentenceId]?attemptId=...` issuing presigned URLs and enforcing max 3 plays server-side via `StudentAnswer.playCount`.
 4. **Answer validation:** Added `POST /api/lesson/[shareToken]/answer` with exact check `studentText.trim() === sentence.text.trim()` and `correctText` returned only when wrong.
 5. **Student UI flow:** Implemented `/lesson/[shareToken]` (name entry), `/practice` (progress bar, play limit UI, Enter submit, wrong/correct states), and `/results` (final score + retry link).
+
+## Decisions Log (Phase 4)
+
+1. **Stats API contract:** Added `GET /api/admin/lessons/[id]/stats` returning lesson meta, attempts table data, and per-sentence accuracy aggregates.
+2. **Aggregation approach:** Used Prisma reads + in-memory reduction for per-sentence correctness stats to keep implementation explicit and maintainable.
+3. **Admin UI coverage:** Added `/admin/lessons/[id]/stats` page with attempt table and sentence accuracy table; linked it from dashboard and lesson detail.
+4. **Dashboard KPIs:** Added summary cards for total lessons, total attempts, and average audio readiness.
 
 ## Open Items
 
