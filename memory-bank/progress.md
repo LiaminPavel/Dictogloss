@@ -6,7 +6,8 @@
 **Phase 1 — Auth:** complete in production.  
 **Phase 2 — Admin Panel:** complete.  
 **Phase 3 — Student Interface:** complete (core flow).  
-**Phase 4 — Statistics:** in progress (local implementation ready).
+**Phase 4 — Statistics:** complete.  
+**Phase 5 — Deploy:** in progress.
 
 ## Completed (Phase 0)
 
@@ -25,8 +26,8 @@
 
 ## Next
 
-- Run local/manual UI verification of new stats page and dashboard KPI cards.
-- After confirmation, commit/push Phase 4 stats changes to `main`.
+- Verify production env values against `.env.production.example`.
+- Run final deployment smoke test after next production release.
 
 ## Known Issues
 

@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 4 — Statistics** in progress (lesson stats API and admin stats page implemented locally).
+**Phase 5 — Deploy** in progress (production env template, Docker, and CI workflow added).
 
 ## Decisions Log (Phase 0)
 
@@ -60,6 +60,13 @@ Current focus, decisions, and notes for the agent.
 2. **Aggregation approach:** Used Prisma reads + in-memory reduction for per-sentence correctness stats to keep implementation explicit and maintainable.
 3. **Admin UI coverage:** Added `/admin/lessons/[id]/stats` page with attempt table and sentence accuracy table; linked it from dashboard and lesson detail.
 4. **Dashboard KPIs:** Added summary cards for total lessons, total attempts, and average audio readiness.
+
+## Decisions Log (Phase 5)
+
+1. **Production env template:** Added `.env.production.example` with required runtime keys for DB, Auth.js, OpenAI, Anthropic, and DO Spaces.
+2. **Containerization baseline:** Added multi-stage `Dockerfile` (builder + runner) for reproducible production image builds.
+3. **Docker context hygiene:** Added `.dockerignore` excluding local env files, build caches, and browser testing artifacts.
+4. **Main-branch deploy workflow:** Added `.github/workflows/deploy.yml` for repository-side deploy traceability with App Platform auto-deploy note.
 
 ## Open Items
 

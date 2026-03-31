@@ -1,0 +1,14 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy handled by DigitalOcean App Platform
+        run: echo "App Platform auto-deploys on main branch pushes."
