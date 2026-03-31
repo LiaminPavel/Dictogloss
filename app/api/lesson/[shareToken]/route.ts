@@ -42,9 +42,19 @@ export async function GET(
         isActive: true,
       },
       select: {
+        shareToken: true,
         title: true,
         voice: true,
         accent: true,
+        sentences: {
+          orderBy: {
+            order: "asc",
+          },
+          select: {
+            id: true,
+            order: true,
+          },
+        },
         _count: {
           select: {
             sentences: true,
@@ -59,10 +69,12 @@ export async function GET(
 
     return NextResponse.json({
       data: {
+        shareToken: lesson.shareToken,
         title: lesson.title,
         voice: lesson.voice,
         accent: lesson.accent,
         sentenceCount: lesson._count.sentences,
+        sentences: lesson.sentences,
       },
       error: null,
     });

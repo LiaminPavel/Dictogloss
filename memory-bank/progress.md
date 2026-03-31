@@ -5,7 +5,7 @@
 **Phase 0 — Setup:** complete.  
 **Phase 1 — Auth:** complete in production.  
 **Phase 2 — Admin Panel:** complete.  
-**Phase 3 — Student Interface:** next.
+**Phase 3 — Student Interface:** in progress.
 
 ## Completed (Phase 0)
 
@@ -24,8 +24,8 @@
 
 ## Next
 
-- Start Phase 3: `GET /api/lesson/[shareToken]`, attempt creation, answer submission, and audio playback endpoint with play-count enforcement.
-- Build student lesson entry page (`/lesson/[shareToken]`) and practice flow UI.
+- Run end-to-end production checks for student flow (start attempt, play audio with 3-play cap, answer transitions, final score persistence).
+- Add richer results breakdown (per-sentence correctness list) if required for MVP polish.
 
 ## Known Issues
 

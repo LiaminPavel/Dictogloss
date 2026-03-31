@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 2 — Admin Panel** completed (lesson detail, failed-audio regeneration, soft delete).
+**Phase 3 — Student Interface** in progress (student APIs and lesson/practice/results pages implemented).
 
 ## Decisions Log (Phase 0)
 
@@ -45,6 +45,14 @@ Current focus, decisions, and notes for the agent.
 8. **Lesson detail API/UI:** Added `GET /api/admin/lessons/[id]` and `/admin/lessons/[id]` page with sentence-level audio statuses and copyable share link.
 9. **Failed audio recovery:** Added sentence-specific regeneration endpoint `POST /api/admin/lessons/[id]/sentences/[sentenceId]/regenerate` for `FAILED` items.
 10. **Soft delete:** Added `DELETE /api/admin/lessons/[id]` that sets `deletedAt` and `isActive=false` instead of hard deletion.
+
+## Decisions Log (Phase 3)
+
+1. **Public lesson metadata:** `GET /api/lesson/[shareToken]` returns title/voice/accent/sentence count and ordered sentence IDs only (no sentence texts).
+2. **Attempt lifecycle:** Added `POST /api/lesson/[shareToken]/attempt` and `PATCH /api/lesson/[shareToken]/attempt/[id]/complete` for start/finish bookkeeping.
+3. **Audio playback control:** Added `GET /api/lesson/[shareToken]/audio/[sentenceId]?attemptId=...` issuing presigned URLs and enforcing max 3 plays server-side via `StudentAnswer.playCount`.
+4. **Answer validation:** Added `POST /api/lesson/[shareToken]/answer` with exact check `studentText.trim() === sentence.text.trim()` and `correctText` returned only when wrong.
+5. **Student UI flow:** Implemented `/lesson/[shareToken]` (name entry), `/practice` (progress bar, play limit UI, Enter submit, wrong/correct states), and `/results` (final score + retry link).
 
 ## Open Items
 
