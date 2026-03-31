@@ -96,7 +96,7 @@ export async function POST(
           audioUrl,
         },
       });
-    } catch {
+    } catch (error) {
       await prisma.sentence.update({
         where: { id: sentence.id },
         data: {
@@ -104,7 +104,8 @@ export async function POST(
         },
       });
 
-      return errorResponse("Regeneration failed.", "REGENERATION_FAILED", 500);
+      const message = error instanceof Error ? error.message : "Regeneration failed.";
+      return errorResponse(message, "REGENERATION_FAILED", 500);
     }
 
     return NextResponse.json({

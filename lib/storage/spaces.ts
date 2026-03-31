@@ -22,7 +22,7 @@ const spacesClient =
 
 export async function uploadAudioToSpaces(key: string, body: Buffer): Promise<string> {
   if (!spacesClient || !bucket || !cdnUrl) {
-    throw new Error("Storage configuration is incomplete.");
+    throw new Error("DO Spaces configuration is incomplete.");
   }
 
   await spacesClient.send(
@@ -40,7 +40,7 @@ export async function uploadAudioToSpaces(key: string, body: Buffer): Promise<st
 
 export async function getPresignedAudioUrl(key: string): Promise<string> {
   if (!spacesClient || !bucket) {
-    throw new Error("Storage configuration is incomplete.");
+    throw new Error("DO Spaces configuration is incomplete.");
   }
 
   const command = new GetObjectCommand({
@@ -53,7 +53,7 @@ export async function getPresignedAudioUrl(key: string): Promise<string> {
 
 export function extractStorageKeyFromAudioUrl(audioUrl: string): string {
   if (!cdnUrl) {
-    throw new Error("Storage configuration is incomplete.");
+    throw new Error("DO Spaces configuration is incomplete.");
   }
 
   const normalizedCdn = cdnUrl.replace(/\/$/, "");

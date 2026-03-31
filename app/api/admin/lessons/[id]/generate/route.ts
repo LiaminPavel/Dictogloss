@@ -107,11 +107,14 @@ export async function POST(
           audioUrl,
         },
       });
-    } catch {
+    } catch (error) {
       await prisma.sentence.update({
         where: { id: nextSentence.id },
         data: { audioStatus: "FAILED" },
       });
+
+      const message = error instanceof Error ? error.message : "Audio generation failed.";
+      return errorResponse(message, "AUDIO_GENERATION_FAILED", 500);
     }
 
     const [total, readyCount] = await Promise.all([
