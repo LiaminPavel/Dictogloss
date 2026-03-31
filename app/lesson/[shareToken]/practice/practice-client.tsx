@@ -28,9 +28,14 @@ export function PracticeClient({
   const [remainingPlays, setRemainingPlays] = useState<number>(3);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean; correctText?: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    isCorrect: boolean;
+    correctText?: string;
+    studentText?: string;
+  } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [score, setScore] = useState<number>(0);
+  const [isAutoAdvancing, setIsAutoAdvancing] = useState<boolean>(false);
   const router = useRouter();
 
   const currentSentence = sentences[currentIndex];
@@ -47,6 +52,7 @@ export function PracticeClient({
     setFeedback(null);
     setErrorMessage("");
     setRemainingPlays(3);
+    setIsAutoAdvancing(false);
 
     if (currentIndex + 1 >= total) {
       await fetch(`/api/lesson/${shareToken}/attempt/${attemptId}/complete`, {
@@ -129,6 +135,7 @@ export function PracticeClient({
 
       if (payload.data.isCorrect) {
         const updatedScore = score + 1;
+        setIsAutoAdvancing(true);
         setFeedback({ isCorrect: true });
         setScore(updatedScore);
         window.setTimeout(() => {
@@ -138,6 +145,7 @@ export function PracticeClient({
         setFeedback({
           isCorrect: false,
           correctText: payload.data.correctText ?? "",
+          studentText,
         });
       }
     } catch {
@@ -183,7 +191,7 @@ export function PracticeClient({
           value={studentText}
           onChange={(event) => setStudentText(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey && !feedback) {
+            if (event.key === "Enter" && !event.shiftKey && !isAutoAdvancing) {
               event.preventDefault();
               void handleSubmitAnswer();
             }
@@ -191,21 +199,31 @@ export function PracticeClient({
           placeholder="Type what you hear..."
           rows={4}
           className="mt-4 w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-zinc-500 focus:outline-none"
-          disabled={Boolean(feedback)}
+          disabled={isAutoAdvancing}
         />
 
-        {!feedback ? (
+        <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAutoAdvancing}
             onClick={() => {
               void handleSubmitAnswer();
             }}
-            className="mt-3 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:opacity-60"
+            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:opacity-60"
           >
             {isSubmitting ? "Checking..." : "Check (Enter)"}
           </button>
-        ) : null}
+          <button
+            type="button"
+            disabled={isAutoAdvancing}
+            onClick={() => {
+              void goToNextSentence();
+            }}
+            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-60"
+          >
+            Next phrase
+          </button>
+        </div>
       </section>
 
       {feedback?.isCorrect ? (
@@ -217,16 +235,8 @@ export function PracticeClient({
       {feedback && !feedback.isCorrect ? (
         <section className="rounded-md bg-red-50 p-4 text-red-700">
           <p>Wrong answer.</p>
+          <p className="mt-1">You typed: {feedback.studentText}</p>
           <p className="mt-1">Correct text: {feedback.correctText}</p>
-          <button
-            type="button"
-            onClick={() => {
-              void goToNextSentence();
-            }}
-            className="mt-3 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
-          >
-            Continue
-          </button>
         </section>
       ) : null}
 

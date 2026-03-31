@@ -7,7 +7,7 @@ loadEnv({ path: ".env.local" });
 const prisma = new PrismaClient();
 
 async function main(): Promise<void> {
-  const passwordHash = await hash("Admin123!", 12);
+  const passwordHash = await hash("zkqp7W##Fm&Nlh", 12);
 
   await prisma.user.upsert({
     where: { email: "admin@dictogloss.app" },

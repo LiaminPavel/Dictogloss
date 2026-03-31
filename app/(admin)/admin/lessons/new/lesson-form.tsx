@@ -39,6 +39,9 @@ export function LessonForm(): React.ReactElement {
     total: number;
   } | null>(null);
   const [shareLink, setShareLink] = useState<string>("");
+  const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false);
+  const [previewErrorMessage, setPreviewErrorMessage] = useState<string>("");
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   const sentenceList = useMemo<string[]>(() => {
     return sentencesInput
@@ -155,6 +158,64 @@ export function LessonForm(): React.ReactElement {
     setSelectedAccent(voice.accent);
   };
 
+  const handleVoicePreview = async (): Promise<void> => {
+    setPreviewErrorMessage("");
+    const previewText = sentenceList[0]?.trim();
+    if (!previewText) {
+      setPreviewErrorMessage("Add at least one sentence to preview audio.");
+      return;
+    }
+
+    setIsPreviewLoading(true);
+    try {
+      const response = await fetch("/api/admin/tts-preview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: previewText,
+          voice: selectedVoice,
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: { message?: string } };
+        setPreviewErrorMessage(payload.error?.message ?? "Failed to preview audio.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const tempUrl = URL.createObjectURL(blob);
+      const audio = new Audio(tempUrl);
+      await audio.play();
+      audio.addEventListener(
+        "ended",
+        () => {
+          URL.revokeObjectURL(tempUrl);
+        },
+        { once: true },
+      );
+    } catch {
+      setPreviewErrorMessage("Failed to preview audio.");
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  };
+
+  const handleCopyShareLink = async (): Promise<void> => {
+    if (!shareLink) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       <section className="flex flex-col gap-2">
@@ -240,6 +301,19 @@ export function LessonForm(): React.ReactElement {
             })}
           </div>
         </div>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            disabled={isPreviewLoading}
+            onClick={() => {
+              void handleVoicePreview();
+            }}
+            className="w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-60"
+          >
+            {isPreviewLoading ? "Generating preview..." : "Preview selected voice"}
+          </button>
+          {previewErrorMessage ? <p className="text-sm text-red-600">{previewErrorMessage}</p> : null}
+        </div>
       </section>
 
       <section className="flex flex-col gap-3">
@@ -269,6 +343,17 @@ export function LessonForm(): React.ReactElement {
         <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">
           <p className="font-medium">Lesson is ready.</p>
           <p className="break-all">Shareable link: {shareLink}</p>
+          <button
+            type="button"
+            onClick={() => {
+              void handleCopyShareLink();
+            }}
+            className="mt-3 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
+          >
+            Copy link
+          </button>
+          {copyState === "copied" ? <p className="mt-2 text-sm text-emerald-700">Link copied.</p> : null}
+          {copyState === "failed" ? <p className="mt-2 text-sm text-red-600">Failed to copy link.</p> : null}
         </div>
       ) : null}
 
