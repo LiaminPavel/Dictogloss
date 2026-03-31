@@ -69,6 +69,7 @@ Current focus, decisions, and notes for the agent.
 4. **Main-branch deploy workflow:** Added `.github/workflows/deploy.yml` for repository-side deploy traceability with App Platform auto-deploy note.
 5. **Seed password hardening:** `prisma/seed.ts` now requires `SEED_ADMIN_PASSWORD` from environment and rejects missing/short values to prevent plaintext password commits.
 6. **Admin navigation UX:** Added shared admin layout with top navigation tabs (`Dashboard`, `Create lesson`) to simplify cross-page movement without manual URLs.
+7. **Create lesson QA preview:** Added generated-audio playback controls after lesson generation so teachers can listen to final sentence audio before publishing.
 
 ## Open Items
 

@@ -42,6 +42,16 @@ export function LessonForm(): React.ReactElement {
   const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false);
   const [previewErrorMessage, setPreviewErrorMessage] = useState<string>("");
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [createdLessonId, setCreatedLessonId] = useState<string>("");
+  const [generatedSentences, setGeneratedSentences] = useState<
+    Array<{
+      id: string;
+      order: number;
+      audioStatus: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+      textPreview: string;
+    }>
+  >([]);
+  const [playingSentenceId, setPlayingSentenceId] = useState<string>("");
 
   const sentenceList = useMemo<string[]>(() => {
     return sentencesInput
@@ -62,6 +72,8 @@ export function LessonForm(): React.ReactElement {
     setErrorMessage("");
     setShareLink("");
     setProgressState(null);
+    setCreatedLessonId("");
+    setGeneratedSentences([]);
 
     const parsed = lessonSchema.safeParse({
       title,
@@ -108,6 +120,7 @@ export function LessonForm(): React.ReactElement {
       }
 
       const lessonId = createPayload.data.lessonId;
+      setCreatedLessonId(lessonId);
       const total = createPayload.data.sentenceCount;
       setProgressState({ completed: 0, total });
 
@@ -143,6 +156,25 @@ export function LessonForm(): React.ReactElement {
         if (generatePayload.data.done) {
           const origin = window.location.origin;
           setShareLink(`${origin}${generatePayload.data.shareUrl}`);
+          const detailsResponse = await fetch(`/api/admin/lessons/${lessonId}`, {
+            cache: "no-store",
+          });
+          const detailsPayload = (await detailsResponse.json()) as {
+            data: {
+              sentences: Array<{
+                id: string;
+                order: number;
+                audioStatus: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+                textPreview: string;
+              }>;
+            } | null;
+            error: {
+              message: string;
+            } | null;
+          };
+          if (detailsResponse.ok && detailsPayload.data?.sentences) {
+            setGeneratedSentences(detailsPayload.data.sentences);
+          }
           break;
         }
       }
@@ -150,6 +182,38 @@ export function LessonForm(): React.ReactElement {
       setErrorMessage("Unexpected error while creating lesson.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handlePlayGeneratedSentence = async (sentenceId: string): Promise<void> => {
+    if (!createdLessonId || playingSentenceId) {
+      return;
+    }
+
+    setPlayingSentenceId(sentenceId);
+    setErrorMessage("");
+    try {
+      const response = await fetch(`/api/admin/lessons/${createdLessonId}/audio/${sentenceId}`);
+      const payload = (await response.json()) as {
+        data: {
+          audioUrl: string;
+        } | null;
+        error: {
+          message: string;
+        } | null;
+      };
+
+      if (!response.ok || !payload.data?.audioUrl) {
+        setErrorMessage(payload.error?.message ?? "Failed to load generated audio.");
+        return;
+      }
+
+      const audio = new Audio(payload.data.audioUrl);
+      await audio.play();
+    } catch {
+      setErrorMessage("Failed to load generated audio.");
+    } finally {
+      setPlayingSentenceId("");
     }
   };
 
@@ -355,6 +419,37 @@ export function LessonForm(): React.ReactElement {
           {copyState === "copied" ? <p className="mt-2 text-sm text-emerald-700">Link copied.</p> : null}
           {copyState === "failed" ? <p className="mt-2 text-sm text-red-600">Failed to copy link.</p> : null}
         </div>
+      ) : null}
+
+      {generatedSentences.length > 0 ? (
+        <section className="flex flex-col gap-3 rounded-md border border-zinc-200 bg-white p-4">
+          <h2 className="text-sm font-medium text-zinc-900">Generated audio preview</h2>
+          <div className="space-y-2">
+            {generatedSentences.map((sentence) => (
+              <div
+                key={sentence.id}
+                className="flex flex-col gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-medium text-zinc-900">
+                    #{sentence.order} • {sentence.audioStatus}
+                  </p>
+                  <p className="text-sm text-zinc-700">{sentence.textPreview}</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={sentence.audioStatus !== "READY" || playingSentenceId === sentence.id}
+                  onClick={() => {
+                    void handlePlayGeneratedSentence(sentence.id);
+                  }}
+                  className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-60"
+                >
+                  {playingSentenceId === sentence.id ? "Playing..." : "Play generated audio"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       <button
