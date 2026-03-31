@@ -29,6 +29,7 @@
 - Verify production env values against `.env.production.example`.
 - Run final deployment smoke test after next production release.
 - Rotate admin password using `SEED_ADMIN_PASSWORD` based seeding flow.
+- Validate admin top navigation UX in production after deployment.
 
 ## Known Issues
 
