@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 1 — Auth** in progress (NextAuth v5 credentials, `/login`, middleware for `/admin` and `/api/admin/*`).
+**Phase 2 — Admin Panel** in progress (lesson creation form UI, voice selection, sentence preview).
 
 ## Decisions Log (Phase 0)
 
@@ -32,6 +32,12 @@ Current focus, decisions, and notes for the agent.
 3. **Route protection:** Added `middleware.ts` matcher for `/admin/:path*` and `/api/admin/:path*`; page routes redirect to `/login`, API routes return `401` with project error envelope.
 4. **Login UX:** Added `/login` page and client form with Zod validation before `signIn("credentials")`, plus callback redirect handling back to protected route.
 5. **Production host trust:** Fixed Auth.js runtime `UntrustedHost` on DigitalOcean by enabling `trustHost: true` in `lib/auth/config.ts` (Context7 confirms parity with `AUTH_TRUST_HOST=true`).
+
+## Decisions Log (Phase 2)
+
+1. **New lesson UI scope:** Implemented `app/(admin)/admin/lessons/new` as a UI-first form with local Zod validation, voice cards, and sentence preview before wiring APIs.
+2. **Voice selection model:** Kept OpenAI-supported voices (`alloy`, `nova`, `onyx`, `echo`, `fable`, `shimmer`) grouped by accent for clear teacher UX.
+3. **Preview behavior:** Sentence parsing is line-based, trims whitespace, and updates in real time without `useEffect` (computed via `useMemo` from textarea state).
 
 ## Open Items
 

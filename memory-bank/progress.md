@@ -3,7 +3,8 @@
 ## Status
 
 **Phase 0 — Setup:** complete.  
-**Phase 1 — Auth:** in progress.
+**Phase 1 — Auth:** complete in production.  
+**Phase 2 — Admin Panel:** in progress.
 
 ## Completed (Phase 0)
 
@@ -22,8 +23,9 @@
 
 ## Next
 
-- Complete Phase 1 verification against real deployment URLs and run credential flow tests (`success`, `wrong password`, `unknown user`, protected route redirects, API 401 without session).
-- Set `AUTH_TRUST_HOST=true` in DigitalOcean App Platform environment to mirror code-level `trustHost: true` and keep deployment config explicit.
+- Implement lesson creation API flow (`POST /api/admin/lessons`) with Zod validation and admin auth checks.
+- Wire "Create lesson and generate audio" button to backend create + generation trigger endpoints.
+- Add generation progress states and post-create share link presentation.
 
 ## Known Issues
 

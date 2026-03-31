@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import Link from "next/link";
 
 export default async function AdminDashboardPage(): Promise<React.ReactElement> {
   const session = await auth();
@@ -12,6 +13,12 @@ export default async function AdminDashboardPage(): Promise<React.ReactElement> 
       <p className="text-zinc-600">
         Phase 1 authentication is active. Continue with lesson management in Phase 2.
       </p>
+      <Link
+        href="/admin/lessons/new"
+        className="inline-flex w-fit rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
+      >
+        Create a new lesson
+      </Link>
     </main>
   );
 }
