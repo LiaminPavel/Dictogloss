@@ -33,12 +33,12 @@ export function LessonForm(): React.ReactElement {
   const [selectedVoice, setSelectedVoice] = useState<string>("alloy");
   const [selectedAccent, setSelectedAccent] = useState<Accent>("american");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [submittedData, setSubmittedData] = useState<{
-    title: string;
-    voice: string;
-    accent: Accent;
-    sentenceCount: number;
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [progressState, setProgressState] = useState<{
+    completed: number;
+    total: number;
   } | null>(null);
+  const [shareLink, setShareLink] = useState<string>("");
 
   const sentenceList = useMemo<string[]>(() => {
     return sentencesInput
@@ -54,10 +54,11 @@ export function LessonForm(): React.ReactElement {
     };
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setErrorMessage("");
-    setSubmittedData(null);
+    setShareLink("");
+    setProgressState(null);
 
     const parsed = lessonSchema.safeParse({
       title,
@@ -71,12 +72,82 @@ export function LessonForm(): React.ReactElement {
       return;
     }
 
-    setSubmittedData({
-      title: parsed.data.title,
-      voice: parsed.data.voice,
-      accent: parsed.data.accent,
-      sentenceCount: parsed.data.sentences.length,
-    });
+    setIsSubmitting(true);
+
+    try {
+      const createResponse = await fetch("/api/admin/lessons", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: parsed.data.title,
+          voice: parsed.data.voice,
+          accent: parsed.data.accent,
+          sentences: parsed.data.sentences,
+        }),
+      });
+
+      const createPayload = (await createResponse.json()) as {
+        data: {
+          lessonId: string;
+          shareToken: string;
+          sentenceCount: number;
+        } | null;
+        error: {
+          message: string;
+        } | null;
+      };
+
+      if (!createResponse.ok || !createPayload.data) {
+        setErrorMessage(createPayload.error?.message ?? "Failed to create lesson.");
+        return;
+      }
+
+      const lessonId = createPayload.data.lessonId;
+      const total = createPayload.data.sentenceCount;
+      setProgressState({ completed: 0, total });
+
+      let completed = 0;
+      while (completed < total) {
+        const generateResponse = await fetch(`/api/admin/lessons/${lessonId}/generate`, {
+          method: "POST",
+        });
+
+        const generatePayload = (await generateResponse.json()) as {
+          data: {
+            completed: number;
+            total: number;
+            done: boolean;
+            shareUrl: string;
+          } | null;
+          error: {
+            message: string;
+          } | null;
+        };
+
+        if (!generateResponse.ok || !generatePayload.data) {
+          setErrorMessage(generatePayload.error?.message ?? "Audio generation failed.");
+          return;
+        }
+
+        completed = generatePayload.data.completed;
+        setProgressState({
+          completed,
+          total: generatePayload.data.total,
+        });
+
+        if (generatePayload.data.done) {
+          const origin = window.location.origin;
+          setShareLink(`${origin}${generatePayload.data.shareUrl}`);
+          break;
+        }
+      }
+    } catch {
+      setErrorMessage("Unexpected error while creating lesson.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleVoiceSelect = (voice: VoiceOption): void => {
@@ -188,18 +259,25 @@ export function LessonForm(): React.ReactElement {
 
       {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
 
-      {submittedData ? (
-        <p className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">
-          Form validated: {submittedData.title} ({submittedData.sentenceCount} sentences, {submittedData.accent},{" "}
-          {submittedData.voice}).
+      {progressState ? (
+        <p className="rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+          Generating audio: {progressState.completed} of {progressState.total} sentences.
         </p>
+      ) : null}
+
+      {shareLink ? (
+        <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">
+          <p className="font-medium">Lesson is ready.</p>
+          <p className="break-all">Shareable link: {shareLink}</p>
+        </div>
       ) : null}
 
       <button
         type="submit"
+        disabled={isSubmitting}
         className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 sm:w-fit"
       >
-        Create lesson and generate audio
+        {isSubmitting ? "Creating and generating..." : "Create lesson and generate audio"}
       </button>
     </form>
   );
