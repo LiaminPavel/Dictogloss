@@ -22,6 +22,7 @@ Stack versions and tooling (as of Phase 0 completion). Verify with `package.json
 - **Local:** copy `.env.local` from placeholders; set a real `DATABASE_URL` for Postgres.
 - **Prisma:** `prisma.config.ts` loads `.env.local` for `DATABASE_URL`.
 - **Node:** use current Node LTS compatible with Next 14 (e.g. 20.x).
+- **Auth host trust:** set `AUTH_TRUST_HOST=true` in environments behind proxies (DigitalOcean App Platform) to prevent Auth.js `UntrustedHost`.
 
 ## Context7 References Used (Phase 0)
 
