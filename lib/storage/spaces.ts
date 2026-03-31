@@ -1,0 +1,38 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const endpoint = process.env.DO_SPACES_ENDPOINT;
+const region = process.env.DO_SPACES_REGION;
+const accessKeyId = process.env.DO_SPACES_KEY;
+const secretAccessKey = process.env.DO_SPACES_SECRET;
+const bucket = process.env.DO_SPACES_BUCKET;
+const cdnUrl = process.env.DO_SPACES_CDN_URL;
+
+const spacesClient =
+  endpoint && region && accessKeyId && secretAccessKey
+    ? new S3Client({
+        endpoint,
+        region,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+      })
+    : null;
+
+export async function uploadAudioToSpaces(key: string, body: Buffer): Promise<string> {
+  if (!spacesClient || !bucket || !cdnUrl) {
+    throw new Error("Storage configuration is incomplete.");
+  }
+
+  await spacesClient.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: body,
+      ContentType: "audio/mpeg",
+      ACL: "private",
+    }),
+  );
+
+  return `${cdnUrl.replace(/\/$/, "")}/${key}`;
+}
