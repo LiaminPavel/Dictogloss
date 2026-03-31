@@ -101,3 +101,66 @@ export async function POST(request: Request): Promise<NextResponse> {
     return errorResponse("Failed to create lesson.", "CREATE_LESSON_FAILED", 500);
   }
 }
+
+export async function GET(): Promise<NextResponse> {
+  try {
+    const admin = await requireAdmin();
+
+    const lessons = await prisma.lesson.findMany({
+      where: {
+        userId: admin.id,
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        title: true,
+        shareToken: true,
+        voice: true,
+        accent: true,
+        createdAt: true,
+        _count: {
+          select: {
+            sentences: true,
+            attempts: true,
+          },
+        },
+        sentences: {
+          select: {
+            audioStatus: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      data: lessons.map((lesson) => {
+        const readyCount = lesson.sentences.filter((sentence) => sentence.audioStatus === "READY").length;
+        const failedCount = lesson.sentences.filter((sentence) => sentence.audioStatus === "FAILED").length;
+        return {
+          id: lesson.id,
+          title: lesson.title,
+          shareToken: lesson.shareToken,
+          voice: lesson.voice,
+          accent: lesson.accent,
+          createdAt: lesson.createdAt,
+          sentenceCount: lesson._count.sentences,
+          attemptCount: lesson._count.attempts,
+          audioReadyCount: readyCount,
+          audioFailedCount: failedCount,
+        };
+      }),
+      error: null,
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.message === "Unauthorized" || error.message === "Forbidden")) {
+      const status = error.message === "Unauthorized" ? 401 : 403;
+      const code = error.message === "Unauthorized" ? "UNAUTHORIZED" : "FORBIDDEN";
+      return errorResponse(error.message, code, status);
+    }
+
+    return errorResponse("Failed to fetch lessons.", "FETCH_LESSONS_FAILED", 500);
+  }
+}

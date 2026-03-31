@@ -4,7 +4,7 @@ Current focus, decisions, and notes for the agent.
 
 ## Current Phase
 
-**Phase 2 — Admin Panel** in progress (lesson creation form UI, voice selection, sentence preview).
+**Phase 2 — Admin Panel** in progress (lesson creation backend wired, audio generation flow, dashboard lessons list).
 
 ## Decisions Log (Phase 0)
 
@@ -38,6 +38,10 @@ Current focus, decisions, and notes for the agent.
 1. **New lesson UI scope:** Implemented `app/(admin)/admin/lessons/new` as a UI-first form with local Zod validation, voice cards, and sentence preview before wiring APIs.
 2. **Voice selection model:** Kept OpenAI-supported voices (`alloy`, `nova`, `onyx`, `echo`, `fable`, `shimmer`) grouped by accent for clear teacher UX.
 3. **Preview behavior:** Sentence parsing is line-based, trims whitespace, and updates in real time without `useEffect` (computed via `useMemo` from textarea state).
+4. **Lesson creation API:** Added `POST /api/admin/lessons` with payload validation, admin auth, and atomic creation of `Lesson` + ordered `Sentence` rows.
+5. **Audio generation strategy:** Added `POST /api/admin/lessons/[id]/generate` to process one pending sentence per call, generate TTS via OpenAI, upload MP3 to DO Spaces, and persist `audioStatus`.
+6. **Progress UX:** Lesson form now runs create + repeated generate calls and updates progress counters sentence-by-sentence until done, then shows a shareable lesson URL.
+7. **Dashboard data:** Admin dashboard now lists teacher lessons with sentence/attempt counts, audio-ready progress, failure count, and share links.
 
 ## Open Items
 

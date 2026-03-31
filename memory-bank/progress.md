@@ -4,7 +4,7 @@
 
 **Phase 0 — Setup:** complete.  
 **Phase 1 — Auth:** complete in production.  
-**Phase 2 — Admin Panel:** in progress.
+**Phase 2 — Admin Panel:** in progress (backend core done).
 
 ## Completed (Phase 0)
 
@@ -23,9 +23,9 @@
 
 ## Next
 
-- Implement lesson creation API flow (`POST /api/admin/lessons`) with Zod validation and admin auth checks.
-- Wire "Create lesson and generate audio" button to backend create + generation trigger endpoints.
-- Add generation progress states and post-create share link presentation.
+- Add admin lesson detail page with per-sentence status and regenerate actions for failed audio.
+- Implement `GET /api/admin/lessons/[id]` and connect it to admin lesson detail UI.
+- Start Phase 3 student endpoints after Phase 2 detail/stat pages are complete.
 
 ## Known Issues
 
