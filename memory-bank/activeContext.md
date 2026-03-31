@@ -67,6 +67,7 @@ Current focus, decisions, and notes for the agent.
 2. **Containerization baseline:** Added multi-stage `Dockerfile` (builder + runner) for reproducible production image builds.
 3. **Docker context hygiene:** Added `.dockerignore` excluding local env files, build caches, and browser testing artifacts.
 4. **Main-branch deploy workflow:** Added `.github/workflows/deploy.yml` for repository-side deploy traceability with App Platform auto-deploy note.
+5. **Seed password hardening:** `prisma/seed.ts` now requires `SEED_ADMIN_PASSWORD` from environment and rejects missing/short values to prevent plaintext password commits.
 
 ## Open Items
 

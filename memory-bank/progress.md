@@ -28,6 +28,7 @@
 
 - Verify production env values against `.env.production.example`.
 - Run final deployment smoke test after next production release.
+- Rotate admin password using `SEED_ADMIN_PASSWORD` based seeding flow.
 
 ## Known Issues
 

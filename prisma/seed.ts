@@ -7,7 +7,16 @@ loadEnv({ path: ".env.local" });
 const prisma = new PrismaClient();
 
 async function main(): Promise<void> {
-  const passwordHash = await hash("zkqp7W##Fm&Nlh", 12);
+  const rawPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!rawPassword) {
+    throw new Error("SEED_ADMIN_PASSWORD is required for seeding admin password.");
+  }
+
+  if (rawPassword.length < 12) {
+    throw new Error("SEED_ADMIN_PASSWORD must be at least 12 characters.");
+  }
+
+  const passwordHash = await hash(rawPassword, 12);
 
   await prisma.user.upsert({
     where: { email: "admin@dictogloss.app" },

@@ -1,3 +1,21 @@
+## Dictogloss
+
+English dictation app for teachers and students.
+
+## Admin password seeding (secure)
+
+`prisma/seed.ts` reads admin password from `SEED_ADMIN_PASSWORD` and never stores plaintext password in repository files.
+
+Use this command format to rotate the admin password safely (value exists only in shell session):
+
+```bash
+SEED_ADMIN_PASSWORD='your-strong-password-here' npx prisma db seed
+```
+
+Do not commit passwords to code or `.env` files.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
